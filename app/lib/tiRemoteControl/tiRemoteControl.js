@@ -51,7 +51,7 @@ exports.setNowPlayingInfo  = function(nowPlayingInfo){
         if(nowPlayingInfo.localAlbumArtwork){
             // local file short method
             var UIImage = require('UIKit/UIImage');
-            var albumArtworkUIImage = UIImage.imageNamed("images/artwork.png");
+            var albumArtworkUIImage = UIImage.imageNamed(nowPlayingInfo.localAlbumArtwork);
             // local file long method - better for system cache / memory according to apple - https://developer.apple.com/documentation/uikit/uiimage/1624146-imagenamed?language=objc
             //var NSBundle = require('Foundation/NSBundle');
             //var imagePath = NSBundle.mainBundle.pathForResourceOfType("images/artwork", "png");
@@ -61,7 +61,7 @@ exports.setNowPlayingInfo  = function(nowPlayingInfo){
         } else if(nowPlayingInfo.remoteAlbumArtwork){
             // remote file
             var NSURL = require('Foundation/NSURL');
-            var imageURL = NSURL.alloc().initWithString();
+            var imageURL = NSURL.alloc().initWithString(nowPlayingInfo.remoteAlbumArtwork);
             
             var NSData = require('Foundation/NSData');
             var imageData =  NSData.alloc().initWithContentsOfURL(imageURL);
