@@ -1,0 +1,14 @@
+".container": {
+	backgroundColor:"white",
+	layout: 'vertical',
+
+}
+"#startStopButton": {
+	top: 25,
+}
+"#pauseResumeButton": {
+	top: 25,
+}
+"#updateNowPlayingInfo": {
+	top: 25,
+}

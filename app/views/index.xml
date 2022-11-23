@@ -1,0 +1,7 @@
+<Alloy>
+	<Window id="mainWindow" class="container">
+		<Button id="startStopButton" onClick="startStop">startStop</Button>
+		<Button id="pauseResumeButton" onClick="pauseResume">pauseResume</Button>
+		<Button id="updateNowPlayingInfo" onClick="updateNowPlayingInfo">updateNowPlayingInfo</Button>
+	</Window>
+</Alloy>
