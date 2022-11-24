@@ -3,5 +3,6 @@
 		<Button id="startStopButton" onClick="startStop">startStop</Button>
 		<Button id="pauseResumeButton" onClick="pauseResume">pauseResume</Button>
 		<Button id="updateNowPlayingInfo" onClick="updateNowPlayingInfo">updateNowPlayingInfo</Button>
+		<Button id="removeEventListener" onClick="removeEventListener">removeEventListener</Button>
 	</Window>
 </Alloy>

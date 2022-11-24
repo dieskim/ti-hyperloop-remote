@@ -6,6 +6,60 @@ var audioPlayer = Ti.Media.createAudioPlayer({
 
 var tiRemoteControl = require("tiRemoteControl/tiRemoteControl");
 
+function remoteControlFunctions(event) {
+	Ti.API.debug('tiRemoteControlEvents type: ' + event.subtype);
+
+   	// switch event.subtype
+	switch(event.subtype) {
+		case tiRemoteControl.UIEventSubtypeRemoteControlPlay:
+			Ti.API.debug("Remote Control Event - Play");
+			pauseResume();		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlPause:
+			Ti.API.debug("Remote Control Event - Pause");
+			pauseResume();			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlStop:
+			Ti.API.debug("Remote Control Event - Stop");		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlTogglePlayPause:
+			Ti.API.debug("Remote Control Event - TogglePlayPause");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlNextTrack:
+			Ti.API.debug("Remote Control Event - Next");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlPreviousTrack:
+			Ti.API.debug("Remote Control Event - Prev");	
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlBeginSeekingBackward:
+			Ti.API.debug("Remote Control Event - BeginSeekingBackward");		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlEndSeekingBackward:
+			Ti.API.debug("Remote Control Event - EndSeekingBackward");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlBeginSeekingForward:
+			Ti.API.debug("Remote Control Event - BeginSeekingForward");
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlEndSeekingForward:
+			Ti.API.debug("Remote Control Event - EndSeekingForward");
+			break;
+		default:
+			Ti.API.debug("Remote Control Event not handled with subtype = " + event.subtype);
+	}
+};
+
+// addEventListener for tiRemoteControlEvents
+Ti.App.addEventListener("tiRemoteControlEvents", remoteControlFunctions);
+
+// tiRemoteControl.setNowPlayingInfo - to set nowPlayingInfo
+tiRemoteControl.setNowPlayingInfo({
+	artist: 'myArtist',															// artist string
+	title: 'MyTitle',															// title string
+	albumTitle: 'myAlbumTitle',                     							// albumTitle string
+	localAlbumArtwork: 'images/artwork.png', 									// localAlbumArtwork local path and file name - make sure to set - tiapp.xml > use-app-thinning = false if you are not using these images anywhere else, or else they will be removed at compile
+	//remoteAlbumArtwork : 'https://titaniumsdk.com/images/tidev-logo.png',		// remoteAlbumArtwork remote path
+});
+
 function updateNowPlayingInfo(){	
 	// run tiRemoteControl.setNowPlayingInfo
 	tiRemoteControl.setNowPlayingInfo({
@@ -14,52 +68,15 @@ function updateNowPlayingInfo(){
 	});
 }
 
-// run tiRemoteControl.remoteControlEvents - to get events back from remoteControl
-tiRemoteControl.remoteControlEvents({
-	play: function(){
-		Ti.API.debug("remoteControlEventListener - Play");
-		 pauseResume()
-	},
-	pause: function(){
-		Ti.API.debug("remoteControlEventListener - pause");
-		 pauseResume()
-	},
-	stop: function(){
-		Ti.API.debug("remoteControlEventListener - stop");
-	},
-	togglePlayPause: function(){
-		Ti.API.debug("remoteControlEventListener - togglePlayPause");
-	},
-	togglePlayPause: function(){
-		Ti.API.debug("remoteControlEventListener - togglePlayPause");
-	},
-	next: function(){
-		Ti.API.debug("remoteControlEventListener - next");
-	},
-	prev: function(){
-		Ti.API.debug("remoteControlEventListener - prev");
-	},
-	beginSeekingBackward: function(){
-		Ti.API.debug("remoteControlEventListener - beginSeekingBackward");
-	},
-	endSeekingBackward: function(){
-		Ti.API.debug("remoteControlEventListener - endSeekingBackward");
-	},
-	beginSeekingForward: function(){
-		Ti.API.debug("remoteControlEventListener - beginSeekingForward");
-	},
-	endSeekingForward: function(){
-		Ti.API.debug("remoteControlEventListener - endSeekingForward");
-	},
-});
-
-
+function removeEventListener(){	
+	// removeEventListener tiRemoteControlEvents
+	Ti.App.removeEventListener("tiRemoteControlEvents", remoteControlFunctions);
+}
 
 function startStop() {
     // When paused, playing returns false.
     // If both are false, playback is stopped.
-    if (audioPlayer.playing || audioPlayer.paused) {
-        
+    if (audioPlayer.playing || audioPlayer.paused) {      
 		audioPlayer.stop();
         $.pauseResumeButton.enabled = false;
         audioPlayer.release();
@@ -67,20 +84,13 @@ function startStop() {
 		// tiRemoteControl.clearNowPlayingInfo - to clear NowPlayingInfo 
 		tiRemoteControl.clearNowPlayingInfo();
 
+		// removeEventListener tiRemoteControlEvents
+		Ti.App.removeEventListener("tiRemoteControlEvents", remoteControlFunctions);
+
     } else {
-
-		// tiRemoteControl.setNowPlayingInfo - to set nowPlayingInfo
-		tiRemoteControl.setNowPlayingInfo({
-			artist: 'myArtist',															// artist string
-			title: 'MyTitle',															// title string
-			albumTitle: 'myAlbumTitle',                     							// albumTitle string
-			localAlbumArtwork: 'images/artwork.png', 									// localAlbumArtwork local path and file name - make sure to set - tiapp.xml > use-app-thinning = false if you are not using these images anywhere else, or else they will be removed at compile
-			//remoteAlbumArtwork : 'https://titaniumsdk.com/images/tidev-logo.png',		// remoteAlbumArtwork remote path
-		});
-
 		audioPlayer.start();		
         $.pauseResumeButton.enabled = true;
-    }
+    };
 }
 
 function pauseResume() {
@@ -88,7 +98,7 @@ function pauseResume() {
 		audioPlayer.start();
     } else {		
         audioPlayer.pause();
-    }
+    };
 }
 
 audioPlayer.addEventListener('progress', function(e) {

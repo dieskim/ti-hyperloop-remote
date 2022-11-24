@@ -10,44 +10,51 @@ Titanium Hyperloop Module allows your Titanium iOS applications to update the MP
 // 2. Require module
 var tiRemoteControl = require("tiRemoteControl/tiRemoteControl");
 
-// 3. Subscribe to events
-tiRemoteControl.remoteControlEvents({
-	play: function(){
-		Ti.API.debug("remoteControlEventListener - Play");
-	},
-	pause: function(){
-		Ti.API.debug("remoteControlEventListener - pause");
-	},
-	stop: function(){
-		Ti.API.debug("remoteControlEventListener - stop");
-	},
-	togglePlayPause: function(){
-		Ti.API.debug("remoteControlEventListener - togglePlayPause");
-	},
-	togglePlayPause: function(){
-		Ti.API.debug("remoteControlEventListener - togglePlayPause");
-	},
-	next: function(){
-		Ti.API.debug("remoteControlEventListener - next");
-	},
-	prev: function(){
-		Ti.API.debug("remoteControlEventListener - prev");
-	},
-	beginSeekingBackward: function(){
-		Ti.API.debug("remoteControlEventListener - beginSeekingBackward");
-	},
-	endSeekingBackward: function(){
-		Ti.API.debug("remoteControlEventListener - endSeekingBackward");
-	},
-	beginSeekingForward: function(){
-		Ti.API.debug("remoteControlEventListener - beginSeekingForward");
-	},
-	endSeekingForward: function(){
-		Ti.API.debug("remoteControlEventListener - endSeekingForward");
-	},
-});
+// 3. Subscribe to events and handle as needed
+function remoteControlFunctions(event) {
+	Ti.API.debug('tiRemoteControlEvents type: ' + event.subtype);
 
-// 4. Set nowPlayingInfo
+   	// switch event.subtype
+	switch(event.subtype) {
+		case tiRemoteControl.UIEventSubtypeRemoteControlPlay:
+			Ti.API.debug("Remote Control Event - Play");	
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlPause:
+			Ti.API.debug("Remote Control Event - Pause");		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlStop:
+			Ti.API.debug("Remote Control Event - Stop");		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlTogglePlayPause:
+			Ti.API.debug("Remote Control Event - TogglePlayPause");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlNextTrack:
+			Ti.API.debug("Remote Control Event - Next");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlPreviousTrack:
+			Ti.API.debug("Remote Control Event - Prev");	
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlBeginSeekingBackward:
+			Ti.API.debug("Remote Control Event - BeginSeekingBackward");		
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlEndSeekingBackward:
+			Ti.API.debug("Remote Control Event - EndSeekingBackward");			
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlBeginSeekingForward:
+			Ti.API.debug("Remote Control Event - BeginSeekingForward");
+			break;
+		case tiRemoteControl.UIEventSubtypeRemoteControlEndSeekingForward:
+			Ti.API.debug("Remote Control Event - EndSeekingForward");
+			break;
+		default:
+			Ti.API.debug("Remote Control Event not handled with subtype = " + event.subtype);
+	}
+};
+
+// addEventListener for tiRemoteControlEvents
+Ti.App.addEventListener("tiRemoteControlEvents", remoteControlFunctions);
+
+// 4. Set nowPlayingInfo - run any time to update nowPlayingInfo
 tiRemoteControl.setNowPlayingInfo({
     artist: 'myArtist',															// artist string
     title: 'MyTitle',															// title string
@@ -72,6 +79,9 @@ audioPlayer.addEventListener('change', function(e) {
 
 // 5. Clear nowPlayingInfo when needed
 tiRemoteControl.clearNowPlayingInfo();
+
+// 6. removeEventListener when needed
+Ti.App.removeEventListener("tiRemoteControlEvents", remoteControlFunctions);
 
 ```
 

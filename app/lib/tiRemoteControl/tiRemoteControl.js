@@ -3,6 +3,46 @@
 
 Ti.API.debug("remoteControlModule Start")
 
+ // require classes
+var NotificationCenter = require('Foundation/NSNotificationCenter');
+var UIEvent = require('UIKit/UIEvent');
+
+// set constants and export
+exports.UIEventSubtypeRemoteControlPlay = require('UIKit').UIEventSubtypeRemoteControlPlay;
+exports.UIEventSubtypeRemoteControlPause = require('UIKit').UIEventSubtypeRemoteControlPause;
+exports.UIEventSubtypeRemoteControlStop = require('UIKit').UIEventSubtypeRemoteControlStop;
+exports.UIEventSubtypeRemoteControlTogglePlayPause = require('UIKit').UIEventSubtypeRemoteControlTogglePlayPause;
+exports.UIEventSubtypeRemoteControlNextTrack = require('UIKit').UIEventSubtypeRemoteControlNextTrack;
+exports.UIEventSubtypeRemoteControlPreviousTrack = require('UIKit').UIEventSubtypeRemoteControlPreviousTrack;
+exports.UIEventSubtypeRemoteControlBeginSeekingBackward = require('UIKit').UIEventSubtypeRemoteControlBeginSeekingBackward;
+exports.UIEventSubtypeRemoteControlEndSeekingBackward = require('UIKit').UIEventSubtypeRemoteControlEndSeekingBackward;
+exports.UIEventSubtypeRemoteControlBeginSeekingForward = require('UIKit').UIEventSubtypeRemoteControlBeginSeekingForward;
+exports.UIEventSubtypeRemoteControlEndSeekingForward = require('UIKit').UIEventSubtypeRemoteControlEndSeekingForward;
+
+// create remoteControlEvent class
+var remoteControlEvent = Hyperloop.defineClass('remoteControlEvent', 'NSObject');
+remoteControlEvent.addMethod({
+    selector : 'handleEvent:',
+    instance : true,
+    arguments : ['NSNotification'],
+    
+    callback : function(notification) {
+        
+        // get event by casting to UIEvent - notification as NSNotification - userInfo as NSDictionary - event as uievent (needs casting)
+        var event = UIEvent.cast(notification.userInfo.objectForKey("event"));  
+        var subtype = event.subtype;
+
+        Ti.API.debug("event subtype = " + subtype);
+
+        // fireEvent tiRemoteControl with subtype
+        Ti.App.fireEvent("tiRemoteControlEvents", {subtype: subtype});
+    }
+});
+
+// init remoteControlEvent class and add to NotificationCenter listening for events with name TiRemoteControl - https://github.com/tidev/titanium_mobile/blob/master/iphone/TitaniumKit/TitaniumKit/Sources/API/TiRootViewController.m#L205
+var remoteEvent = remoteControlEvent.alloc().init();
+NotificationCenter.defaultCenter.addObserverSelectorNameObject(remoteEvent,'handleEvent:','TiRemoteControl',null);
+
 exports.setNowPlayingInfo  = function(nowPlayingInfo){
 
     // require classes
@@ -130,108 +170,4 @@ exports.clearNowPlayingInfo = function(){
     var emptyInfo = new NSMutableDictionary();
 
     MPNowPlayingInfoCenterClass.defaultCenter().nowPlayingInfo = emptyInfo; // should be set to nil but not sure how to get a nil from javascript into native layer so using empty dictionary
-}
-
-exports.remoteControlEvents = function(eventData){
-
-    // require classes
-    var NotificationCenter = require('Foundation/NSNotificationCenter');
-    var UIEvent = require('UIKit/UIEvent');
-
-    // set constants
-    var UIEventSubtypeRemoteControlPlay = require('UIKit').UIEventSubtypeRemoteControlPlay;
-    var UIEventSubtypeRemoteControlPause = require('UIKit').UIEventSubtypeRemoteControlPause;
-    var UIEventSubtypeRemoteControlStop = require('UIKit').UIEventSubtypeRemoteControlStop;
-    var UIEventSubtypeRemoteControlTogglePlayPause = require('UIKit').UIEventSubtypeRemoteControlTogglePlayPause;
-    var UIEventSubtypeRemoteControlNextTrack = require('UIKit').UIEventSubtypeRemoteControlNextTrack;
-    var UIEventSubtypeRemoteControlPreviousTrack = require('UIKit').UIEventSubtypeRemoteControlPreviousTrack;
-    var UIEventSubtypeRemoteControlBeginSeekingBackward = require('UIKit').UIEventSubtypeRemoteControlBeginSeekingBackward;
-    var UIEventSubtypeRemoteControlEndSeekingBackward = require('UIKit').UIEventSubtypeRemoteControlEndSeekingBackward;
-    var UIEventSubtypeRemoteControlBeginSeekingForward = require('UIKit').UIEventSubtypeRemoteControlBeginSeekingForward;
-    var UIEventSubtypeRemoteControlEndSeekingForward = require('UIKit').UIEventSubtypeRemoteControlEndSeekingForward;
-
-    // create remoteControlEvent class
-    var remoteControlEvent = Hyperloop.defineClass('remoteControlEvent', 'NSObject');
-    remoteControlEvent.addMethod({
-        selector : 'handleEvent:',
-        instance : true,
-        arguments : ['NSNotification'],
-        callback : function(notification) {
-            
-            // get notificationEvent by casting to UIEvent - notification as NSNotification - userInfo as NSDictionary - event as uievent (needs casting)
-            var notificationEvent = UIEvent.cast(notification.userInfo.objectForKey("event"));
-          
-            Ti.API.debug("event subtype = " + notificationEvent.subtype);
-            // switch event subtype
-            switch(notificationEvent.subtype) {
-                case UIEventSubtypeRemoteControlPlay:
-                    Ti.API.debug("Remote Control Event - Play");
-                    if(eventData.play){
-                        eventData.play();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlPause:
-                    Ti.API.debug("Remote Control Event - Pause");
-                    if(eventData.pause){
-                        eventData.pause();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlStop:
-                    Ti.API.debug("Remote Control Event - Stop");
-                    if(eventData.stop){
-                        eventData.stop();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlTogglePlayPause:
-                    Ti.API.debug("Remote Control Event - TogglePlayPause");
-                    if(eventData.togglePlayPause){
-                        eventData.togglePlayPause();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlNextTrack:
-                    Ti.API.debug("Remote Control Event - Next");
-                    if(eventData.next){
-                        eventData.next();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlPreviousTrack:
-                    Ti.API.debug("Remote Control Event - Prev")
-                    if(eventData.prev){
-                        eventData.prev();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlBeginSeekingBackward:
-                    Ti.API.debug("Remote Control Event - BeginSeekingBackward");
-                    if(eventData.beginSeekingBackward){
-                        eventData.beginSeekingBackward();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlEndSeekingBackward:
-                    Ti.API.debug("Remote Control Event - EndSeekingBackward");
-                    if(eventData.endSeekingBackward){
-                        eventData.endSeekingBackward();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlBeginSeekingForward:
-                    Ti.API.debug("Remote Control Event - BeginSeekingForward");
-                    if(eventData.beginSeekingForward){
-                        eventData.beginSeekingForward();
-                    };
-                    break;
-                case UIEventSubtypeRemoteControlEndSeekingForward:
-                    Ti.API.debug("Remote Control Event - EndSeekingForward");
-                     if(eventData.endSeekingForward){
-                        eventData.endSeekingForward();
-                    };
-                    break;
-                default:
-                    Ti.API.debug("Remote Control Event not handled with subtype = " + notificationEvent.subtype);
-            }
-        }
-    });
-
-    // init remoteControlEvent class and add to NotificationCenter listening for events with name TiRemoteControl - https://github.com/tidev/titanium_mobile/blob/master/iphone/TitaniumKit/TitaniumKit/Sources/API/TiRootViewController.m#L205
-    var remoteEvent = remoteControlEvent.alloc().init();
-    NotificationCenter.defaultCenter.addObserverSelectorNameObject(remoteEvent,'handleEvent:','TiRemoteControl',null);
-
 }

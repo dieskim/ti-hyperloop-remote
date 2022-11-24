@@ -12,3 +12,6 @@
 "#updateNowPlayingInfo": {
 	top: 25,
 }
+"#removeEventListener": {
+	top: 25,
+}
